@@ -2,9 +2,9 @@
 
 This Python script uses OpenCV and trained Deep Learning models to identify faces in an image or a video stream (from a webcam or a video file) and categorize the detected faces into three age groups: Under 18, Check ID, and Over 18. The script then colors the bounding boxes around the faces depending on the age group.
 
-🔴: Under 18
-🟡: Check Id
-🟢: Over 18
+🔴 Under 18 <br>
+🟡 Check Id <br>
+🟢 Over 18 <br>
 
 ## Functionality
 The function `highlight_face` processes frames from a video stream and detects faces. It uses a trained neural network (loaded in the variable `net`) to perform face detection, and returns a list of bounding boxes for the detected faces.
