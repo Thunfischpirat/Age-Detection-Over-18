@@ -17,10 +17,10 @@ To use the script, you need to have the trained models and the script in your wo
 Run the script using the command line. The script accepts command line arguments to specify the source of the video and whether to allow more than one face per frame.
 
 ```
-python3 detect.py --source 'path_to_video_file' --one_face
+python3 detect.py --source 'path_to_file' --one_face
 ```
 
-- `--source` argument: replace `'path_to_video_file'` with the path to a video file you want to use. OpenCV can handle a variety of formats such as .mp4 and .jpg. If `--source` is not specified, the script defaults to the webcam.
+- `--source` argument: replace `'path_to_file'` with the path to a video or image file you want to use. OpenCV can handle a variety of formats such as .mp4 and .jpg. If `--source` is not specified, the script defaults to the webcam.
 - `--one_face` argument: include this argument if you want the script to exclusively process frames with only one face. If this argument is not included, the script processes all frames regardless of the number of faces.
 
 ## Dependencies
