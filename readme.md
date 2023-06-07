@@ -1,6 +1,6 @@
 # Face Age Detection
 
-This Python script uses OpenCV and trained Deep Learning models to identify faces in an image or a video stream (from a webcam or a video file) and categorize the detected faces into three age groups: Under 18, Check ID, and Over 18. The script then colors the bounding boxes around the faces depending on the age group.
+This Python script uses OpenCV and trained Deep Learning models to identify faces in an image or a video stream (from a webcam or a video file) and categorize the detected faces into three age groups: Under 18, Check ID, and Over 18. The script then colors the bounding boxes around the faces depending on the age group. The estimated age is displayed on top of the bounding boxes.
 
 🔴 Under 18 <br>
 🟡 Check Id <br>
@@ -36,4 +36,8 @@ Also, the script uses pretrained models for face detection and age categorizatio
 - `opencv_face_detector_uint8.pb`
 - `age_deploy.prototxt`
 - `age_net.caffemodel`
+
+## Example
+<img src="https://github.com/Thunfischpirat/Age-Detection-Over-18/assets/28505637/9c2e8343-a9c7-40b7-91c7-a55cb3032d5c" width="500" height="300">
+
 
