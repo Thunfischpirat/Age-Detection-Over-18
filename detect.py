@@ -1,8 +1,8 @@
 # Forked from https://github.com/smahesh29/Gender-and-Age-Detection
 
-import cv2
 import argparse
 
+import cv2
 import numpy as np
 
 
@@ -30,26 +30,26 @@ parser=argparse.ArgumentParser()
 parser.add_argument('--source')
 parser.add_argument('--one_face', action='store_true')
 
-args=parser.parse_args()
+args = parser.parse_args()
 
-faceProto="opencv_face_detector.pbtxt"
-faceModel="opencv_face_detector_uint8.pb"
-ageProto="age_deploy.prototxt"
-ageModel="age_net.caffemodel"
-genderProto="gender_deploy.prototxt"
-genderModel="gender_net.caffemodel"
+faceProto = "opencv_face_detector.pbtxt"
+faceModel = "opencv_face_detector_uint8.pb"
+ageProto = "age_deploy.prototxt"
+ageModel = "age_net.caffemodel"
+genderProto = "gender_deploy.prototxt"
+genderModel = "gender_net.caffemodel"
 
-MODEL_MEAN_VALUES=(78.4263377603, 87.7689143744, 114.895847746)
-ageList=["(Under 18)", "(Check Id)", "(Over 18)"]
+MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
+age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
+age_brackets = ["(Under 18)", "(Check Id)", "(Over 18)"]
 
-faceNet=cv2.dnn.readNet(faceModel,faceProto)
-ageNet=cv2.dnn.readNet(ageModel,ageProto)
+faceNet = cv2.dnn.readNet(faceModel, faceProto)
+ageNet = cv2.dnn.readNet(ageModel, ageProto)
 
-
-video=cv2.VideoCapture(args.source if args.source else 0)
-padding=20
-while cv2.waitKey(1) == -1 :
-    hasFrame,frame=video.read()
+video = cv2.VideoCapture(args.source if args.source else 0)
+padding = 20
+while cv2.waitKey(1) == -1:
+    hasFrame, frame = video.read()
     if not hasFrame:
         cv2.waitKey()
         break
@@ -64,30 +64,39 @@ while cv2.waitKey(1) == -1 :
         continue
 
     for faceBox in faceBoxes:
-        face=frame[max(0,faceBox[1]-padding):
-                   min(faceBox[3]+padding,frame.shape[0]-1),max(0,faceBox[0]-padding)
-                   :min(faceBox[2]+padding, frame.shape[1]-1)]
+        face = frame[max(0, faceBox[1] - padding):
+                     min(faceBox[3] + padding, frame.shape[0] - 1), max(0, faceBox[0] - padding)
+                                                                    :min(faceBox[2] + padding, frame.shape[1] - 1)]
 
-        blob=cv2.dnn.blobFromImage(face, 1.0, (227,227), MODEL_MEAN_VALUES, swapRB=False)
+        blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), MODEL_MEAN_VALUES, swapRB=False)
 
         ageNet.setInput(blob)
-        age_preds=ageNet.forward()
-        under18_probs = np.sum(age_preds[:,:3], keepdims=True)
-        checkid_probs = np.sum(age_preds[:,3:5], keepdims=True)
-        over18_probs = np.sum(age_preds[:,5:], keepdims=True)
+        age_preds = ageNet.forward()
+        estimated_age = age_list[age_preds.argmax()]
+
+        under18_probs = np.sum(age_preds[:, :3], keepdims=True)
+        checkid_probs = np.sum(age_preds[:, 3:5], keepdims=True)
+        over18_probs = np.sum(age_preds[:, 5:], keepdims=True)
         ageBrackets = np.concatenate((under18_probs, checkid_probs, over18_probs), axis=1)
-        age=ageList[ageBrackets.argmax()]
+        bracket = age_brackets[ageBrackets.argmax()]
 
         frameHeight = frame.shape[0]
         frameWidth = frame.shape[1]
-        x1,y1,x2,y2 = faceBox
+        x1, y1, x2, y2 = faceBox
 
-        if age == "(Under 18)":
-            color = (0, 0, 255) # red
-        elif age == "(Check Id)":
-            color = (0, 255, 255) # yellow
+        if bracket == "(Under 18)":
+            color = (0, 0, 255)  # red
+        elif bracket == "(Check Id)":
+            color = (0, 255, 255)  # yellow
         else:
-            color = (0, 255, 0) # green
+            color = (0, 255, 0)  # green
+
+        # Scale text size based on frame width
+        box_width = x2 - x1
+        text_width, _ = cv2.getTextSize(estimated_age, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+        scale_factor = box_width / text_width
+        font_scale = 0.8 * scale_factor
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, frameHeight // 150, 8)
+        cv2.putText(frame, estimated_age, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, 1, cv2.LINE_AA)
         cv2.imshow("Detecting age", frame)
